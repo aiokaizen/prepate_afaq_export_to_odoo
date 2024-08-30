@@ -50,8 +50,9 @@ def handle_excel_file(
     >>> data = handle_excel_file("file.xlsx", start_row, column_names)
     """
 
-    if type(start_row) != int or start_row <= 0:
-        raise Exception("'start_row' attribute is invalid!")
+    if start_row <= 0:
+        raise Exception("'start_row' parameter is invalid!")
+
     start_row -= 1
 
     try:
@@ -147,7 +148,7 @@ def export_xlsx(
 
     :data:dict:Data to be exported to excel file.
     :sheet_title:str:The title of the generated spread sheet.
-    :freeze_header:bool:If set to True (default), the header aread will be fixed on scroll.
+    :freeze_header:bool:If set to True (default), the header will be fixed on scroll.
     """
 
     start_row_index = 1
@@ -175,6 +176,8 @@ def export_xlsx(
 
         for row_index, row in enumerate(data["data"]):
             for col_index, value in enumerate(row):
+                if col_index >= len(col_titles):
+                    break
                 ws.cell(
                     row=row_index + start_row_index + 1,
                     column=col_index + start_col_index,
