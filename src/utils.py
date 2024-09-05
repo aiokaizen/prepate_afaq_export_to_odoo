@@ -17,6 +17,31 @@ def generate_number_with_fixed_size(num, size=5):
     return ''.join(['0' for i in range(size - count)]) + str(num)
 
 
+def format_price(price):
+    if not price:
+        return None
+    if type(price) in [int, float]:
+        return price
+    try:
+        return (
+            float(
+                price.replace(",", "")
+            )
+        )
+    except TypeError:
+        return None
+
+def format_isbn(isbn):
+    if not isbn:
+        return ""
+    return (
+        str(isbn)
+            .replace("-", "")
+            .replace("/", "")
+            .replace(",", "")
+    )
+
+
 def get_category(category, categories):
     res = list(filter((lambda c : c[1] == category), categories))
     if len(res) > 0:
