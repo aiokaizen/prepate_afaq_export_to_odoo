@@ -30,16 +30,22 @@ def format_price(price):
         )
     except TypeError:
         return None
+    except ValueError:
+        return None
 
 def format_isbn(isbn):
-    if not isbn:
+
+    if not isbn or isbn in ["SANS ISBN", "sans-isbn"]:
         return ""
-    return (
+
+    final_isbn = (
         str(isbn)
             .replace("-", "")
             .replace("/", "")
             .replace(",", "")
     )
+
+    return final_isbn
 
 
 def get_category(category, categories):
@@ -47,6 +53,15 @@ def get_category(category, categories):
     if len(res) > 0:
         return res[0]
     return None
+
+def get_filenames(dir, ext=None):
+    f = []
+    for (dirpath, dirnames, filenames) in os.walk(dir):
+        f.extend([
+            file for file in filenames if (not ext or file.endswith(ext))
+        ])
+        break
+    return f
 
 
 def get_cell_str(col, row):
