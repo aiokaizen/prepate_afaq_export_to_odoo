@@ -7,14 +7,14 @@ from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.writer import excel
 
-from django.utils.text import slugify
+from slugify import slugify
 
 from src.settings import BASE_DIR
 
 
 def generate_number_with_fixed_size(num, size=5):
     count = len(str(num))
-    return ''.join(['0' for i in range(size - count)]) + str(num)
+    return "".join(["0" for i in range(size - count)]) + str(num)
 
 
 def format_price(price):
@@ -23,43 +23,39 @@ def format_price(price):
     if type(price) in [int, float]:
         return price
     try:
-        return (
-            float(
-                price.replace(",", "")
-            )
-        )
+        return float(price.replace(",", ""))
     except TypeError:
         return None
     except ValueError:
         return None
 
-def format_isbn(isbn):
 
+def format_isbn(isbn):
     if not isbn or isbn in ["SANS ISBN", "sans-isbn"]:
         return ""
 
-    final_isbn = (
-        str(isbn)
-            .replace("-", "")
-            .replace("/", "")
-            .replace(",", "")
-    )
+    final_isbn = str(isbn).replace("-", "").replace("/", "").replace(",", "").lower()
 
     return final_isbn
 
 
 def get_category(category, categories):
-    res = list(filter((lambda c : c[1] == category), categories))
+    res = list(filter((lambda c: c[1] == category), categories))
     if len(res) > 0:
         return res[0]
     return None
 
+
 def get_filenames(dir, ext=None):
     f = []
-    for (dirpath, dirnames, filenames) in os.walk(dir):
-        f.extend([
-            file for file in filenames if (not ext or file.endswith(ext))
-        ])
+    for dirpath, dirnames, filenames in os.walk(dir):
+        f.extend(
+            [
+                os.path.join(dirpath, file)
+                for file in filenames
+                if (not ext or file.endswith(ext))
+            ]
+        )
         break
     return f
 
@@ -101,9 +97,7 @@ def handle_excel_file(
             extract_columns = []
             slugified_extract_columns = []
         else:
-            slugified_extract_columns = [
-                slugify(name) for name in extract_columns
-            ]
+            slugified_extract_columns = [slugify(name) for name in extract_columns]
 
         wb = openpyxl.load_workbook(file_name)
         if target_sheet:
@@ -177,11 +171,7 @@ def handle_excel_file(
         return None
 
 
-def export_xlsx(
-    data: dict,
-    sheet_title="Data",
-    freeze_header=True,
-):
+def export_xlsx(data: dict, sheet_title="Data", freeze_header=True, tmp_file_dir=None):
     """
     This function creates a tmp .xlsx file based on the data provided and
     returns a result that has the tmp file path in it's instance attribute.
@@ -226,7 +216,10 @@ def export_xlsx(
 
         export_timestamp = int(datetime.now().strftime("%Y%m%d%H%M%S"))
         filename = f"{slugify(sheet_title)}_{export_timestamp}.xlsx"
-        tmp_file_path = os.path.join(BASE_DIR, "export", filename)
+        if not tmp_file_dir:
+            tmp_file_path = os.path.join(BASE_DIR, "export", filename)
+        else:
+            tmp_file_path = os.path.join(tmp_file_dir, filename)
 
         saved = excel.save_workbook(wb, tmp_file_path)
     except Exception as e:

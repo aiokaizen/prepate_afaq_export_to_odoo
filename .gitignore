@@ -2,3 +2,4 @@ afaq_database/
 export/
 categories.json
 *.pyc
+venv/
